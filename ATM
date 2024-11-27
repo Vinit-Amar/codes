@@ -1,0 +1,101 @@
+
+import tkinter as tk
+from tkinter import messagebox
+from datetime import datetime
+from playsound import playsound
+
+# Initial balance
+balance = 1000.0
+
+# Function to log transactions
+def log_transaction(transaction_type, amount=None):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_message = ""
+    if transaction_type == "Balance Inquiry":
+        log_message = f"[{timestamp}] Balance inquiry completed."
+    elif transaction_type == "Deposit":
+        log_message = f"[{timestamp}] Deposited: ${amount:.2f}"
+    elif transaction_type == "Withdrawal":
+        log_message = f"[{timestamp}] Withdrawn: ${amount:.2f}"
+    print(log_message)
+
+# Function to play notification sound
+def play_notification():
+    try:
+        playsound("notification.mp3")  # Replace with your sound file path
+    except Exception as e:
+        print("Could not play sound:", e)
+
+# Functions for ATM actions
+def check_balance():
+    global balance
+    play_notification()
+    messagebox.showinfo("Balance Inquiry", f"Your current balance is: ${balance:.2f}")
+    log_transaction("Balance Inquiry")
+
+def deposit_money():
+    global balance
+    try:
+        deposit = float(deposit_entry.get())
+        if deposit > 0:
+            balance += deposit
+            play_notification()
+            messagebox.showinfo("Deposit Successful", f"You have deposited ${deposit:.2f}.")
+            log_transaction("Deposit", deposit)
+        else:
+            messagebox.showwarning("Invalid Amount", "Enter a valid deposit amount.")
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a numeric value.")
+
+def withdraw_money():
+    global balance
+    try:
+        withdrawal = float(withdraw_entry.get())
+        if 0 < withdrawal <= balance:
+            balance -= withdrawal
+            play_notification()
+            messagebox.showinfo("Withdrawal Successful", f"You have withdrawn ${withdrawal:.2f}.")
+            log_transaction("Withdrawal", withdrawal)
+        elif withdrawal > balance:
+            messagebox.showwarning("Insufficient Balance", "You do not have enough balance.")
+        else:
+            messagebox.showwarning("Invalid Amount", "Enter a valid withdrawal amount.")
+    except ValueError:
+        messagebox.showerror("Error", "Please enter a numeric value.")
+
+# Tkinter GUI
+root = tk.Tk()
+root.title("ATM System")
+
+# Display "Python is cool!"
+label_title = tk.Label(root, text="Python is cool!", font=("Arial", 16), fg="blue")
+label_title.pack(pady=10)
+
+# Balance Inquiry Button
+btn_balance = tk.Button(root, text="Check Balance", font=("Arial", 12), command=check_balance)
+btn_balance.pack(pady=10)
+
+# Deposit Section
+frame_deposit = tk.Frame(root)
+frame_deposit.pack(pady=5)
+tk.Label(frame_deposit, text="Deposit Amount: ", font=("Arial", 12)).pack(side=tk.LEFT)
+deposit_entry = tk.Entry(frame_deposit, font=("Arial", 12))
+deposit_entry.pack(side=tk.LEFT, padx=5)
+btn_deposit = tk.Button(frame_deposit, text="Deposit", font=("Arial", 12), command=deposit_money)
+btn_deposit.pack(side=tk.LEFT, padx=5)
+
+# Withdrawal Section
+frame_withdraw = tk.Frame(root)
+frame_withdraw.pack(pady=5)
+tk.Label(frame_withdraw, text="Withdraw Amount: ", font=("Arial", 12)).pack(side=tk.LEFT)
+withdraw_entry = tk.Entry(frame_withdraw, font=("Arial", 12))
+withdraw_entry.pack(side=tk.LEFT, padx=5)
+btn_withdraw = tk.Button(frame_withdraw, text="Withdraw", font=("Arial", 12), command=withdraw_money)
+btn_withdraw.pack(side=tk.LEFT, padx=5)
+
+# Exit Button
+btn_exit = tk.Button(root, text="Exit", font=("Arial", 12), command=root.quit)
+btn_exit.pack(pady=20)
+
+# Start Tkinter event loop
+root.mainloop()
